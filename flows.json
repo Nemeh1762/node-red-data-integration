@@ -1,0 +1,183 @@
+[
+    {
+        "id": "9f091ee73c810af7",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5c60657b59f9125a",
+        "type": "function",
+        "z": "9f091ee73c810af7",
+        "name": "Data_Integration_Function",
+        "func": "let sourceType;\n\nif (msg.topic && msg.topic.startsWith(\"iot/\")) {\n    sourceType = \"MQTT\";\n}\nelse if (msg.req && msg.req.method === \"GET\") {\n    sourceType = \"Twitter\";\n}\nelse {\n    sourceType = \"Twitter\";\n}\n\nlet unifiedPayload = {\n    source: sourceType,\n    content: msg.payload,\n    timestamp: new Date()\n};\n\nmsg.topic = \"INSERT INTO data_stream (source, content, timestamp) VALUES (?, ?, ?)\";\nmsg.payload = [\n    unifiedPayload.source,\n    JSON.stringify(unifiedPayload.content),\n    unifiedPayload.timestamp\n];\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 140,
+        "wires": [
+            [
+                "66e195974244a551"
+            ]
+        ]
+    },
+    {
+        "id": "fee72fa75234c345",
+        "type": "debug",
+        "z": "9f091ee73c810af7",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "66e195974244a551",
+        "type": "mysql",
+        "z": "9f091ee73c810af7",
+        "mydb": "ea4221259afe893b",
+        "name": "",
+        "x": 490,
+        "y": 240,
+        "wires": [
+            [
+                "fee72fa75234c345"
+            ]
+        ]
+    },
+    {
+        "id": "9b738d8fafdb44f2",
+        "type": "mqtt in",
+        "z": "9f091ee73c810af7",
+        "name": "",
+        "topic": "iot/sensors/#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "1effb06bec8f3df7",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 270,
+        "y": 180,
+        "wires": [
+            [
+                "5c60657b59f9125a"
+            ]
+        ]
+    },
+    {
+        "id": "92b75907c969246b",
+        "type": "http request",
+        "z": "9f091ee73c810af7",
+        "name": "Twitter API",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://jsonplaceholder.typicode.com/posts/1",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 270,
+        "y": 100,
+        "wires": [
+            [
+                "5c60657b59f9125a"
+            ]
+        ]
+    },
+    {
+        "id": "743586def42eca74",
+        "type": "inject",
+        "z": "9f091ee73c810af7",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 100,
+        "y": 100,
+        "wires": [
+            [
+                "92b75907c969246b"
+            ]
+        ]
+    },
+    {
+        "id": "ea4221259afe893b",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "localhost",
+        "port": "3306",
+        "db": "nodered_db",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "1effb06bec8f3df7",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "77e2af3734450348",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-node-mysql": "3.0.0"
+        }
+    }
+]
